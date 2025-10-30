@@ -28,6 +28,7 @@
             display: grid;
             grid-template-columns: 1fr 350px;
             height: calc(100vh - 40px);
+            max-height: calc(100vh - 40px);
         }
 
         /* Main Chat Area */
@@ -82,9 +83,13 @@
         .chat-messages {
             flex: 1;
             padding: 24px;
-            overflow-y: auto;
+            overflow-y: scroll;
+            overflow-x: hidden;
             background: #f8fafc;
-            min-height: 0; /* Critical for flex scrolling */
+            height: 0; /* Force height calculation */
+            min-height: 0;
+            max-height: none;
+            position: relative;
         }
 
         .welcome-message {
@@ -866,9 +871,24 @@
             
             chatMessages.appendChild(messageDiv);
             
-            // Force scroll to bottom
-            setTimeout(() => {
+            // Aggressive scroll to bottom with multiple attempts
+            const scrollToBottom = () => {
                 chatMessages.scrollTop = chatMessages.scrollHeight;
+            };
+            
+            // Immediate scroll
+            scrollToBottom();
+            
+            // Delayed scrolls to ensure content is fully rendered
+            setTimeout(scrollToBottom, 10);
+            setTimeout(scrollToBottom, 100);
+            setTimeout(scrollToBottom, 300);
+            
+            // Force reflow to ensure scrolling works
+            chatMessages.style.overflow = 'hidden';
+            setTimeout(() => {
+                chatMessages.style.overflow = 'scroll';
+                scrollToBottom();
             }, 50);
         }
 
@@ -888,9 +908,13 @@
 
         function showTyping() {
             typingIndicator.classList.add('show');
+            // Force scroll when typing indicator appears
             setTimeout(() => {
                 chatMessages.scrollTop = chatMessages.scrollHeight;
-            }, 50);
+            }, 10);
+            setTimeout(() => {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }, 100);
         }
 
         function hideTyping() {
