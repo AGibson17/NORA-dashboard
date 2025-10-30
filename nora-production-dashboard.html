@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>N.O.R.A. - HR Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            height: calc(100vh - 40px);
+        }
+
+        /* Main Chat Area */
+        .chat-section {
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #e2e8f0;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 24px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .chat-header h1 {
+            font-size: 32px;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .chat-header p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+
+        .connection-banner {
+            padding: 12px 24px;
+            text-align: center;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .connection-banner.connected {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .connection-banner.disconnected {
+            background: #fef2f2;
+            color: #991b1b;
+        }
+
+        .connection-banner.testing {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            background: #f8fafc;
+            min-height: 0; /* Critical for flex scrolling */
+        }
+
+        .welcome-message {
+            text-align: center;
+            color: #64748b;
+            margin-top: 50px;
+        }
+
+        .welcome-message h2 {
+            color: #1e293b;
+            margin-bottom: 16px;
+            font-size: 24px;
+        }
+
+        .welcome-message p {
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .message {
+            margin-bottom: 24px;
+            display: flex;
+            align-items: flex-start;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            margin: 0 16px;
+            flex-shrink: 0;
+        }
+
+        .message.user .message-avatar {
+            background: #667eea;
+            color: white;
+        }
+
+        .message.bot .message-avatar {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        .message-content {
+            max-width: 75%;
+            padding: 16px 20px;
+            border-radius: 18px;
+            line-height: 1.6;
+            word-wrap: break-word;
+        }
+
+        .message.user .message-content {
+            background: #667eea;
+            color: white;
+            border-bottom-right-radius: 6px;
+        }
+
+        .message.bot .message-content {
+            background: white;
+            color: #1e293b;
+            border: 1px solid #e2e8f0;
+            border-bottom-left-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .message-meta {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #f1f5f9;
+            font-size: 12px;
+            color: #64748b;
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .confidence-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .confidence-bar {
+            width: 60px;
+            height: 6px;
+            background: #f1f5f9;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .confidence-high { background: #22c55e; }
+        .confidence-medium { background: #f59e0b; }
+        .confidence-low { background: #ef4444; }
+
+        .typing-indicator {
+            display: none;
+            margin-bottom: 24px;
+        }
+
+        .typing-indicator.show {
+            display: block;
+        }
+
+        .typing-dots {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            border-bottom-left-radius: 6px;
+            max-width: 100px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .typing-dots span {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #94a3b8;
+            margin: 0 3px;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+            30% { transform: translateY(-8px); opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .chat-input {
+            padding: 24px;
+            background: white;
+            border-top: 1px solid #e2e8f0;
+            flex-shrink: 0;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+        }
+
+        .classification-select {
+            min-width: 160px;
+            padding: 14px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 14px;
+            background: white;
+            transition: border-color 0.2s ease;
+        }
+
+        .classification-select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .message-input-container {
+            flex: 1;
+            position: relative;
+        }
+
+        .message-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 14px;
+            resize: none;
+            outline: none;
+            transition: border-color 0.2s ease;
+            font-family: inherit;
+            max-height: 120px;
+        }
+
+        .message-input:focus {
+            border-color: #667eea;
+        }
+
+        .send-button {
+            padding: 14px 24px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+        }
+
+        .send-button:hover:not(:disabled) {
+            background: #5a67d8;
+            transform: translateY(-1px);
+        }
+
+        .send-button:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: #f8fafc;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-section {
+            padding: 24px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .panel-section h3 {
+            margin-bottom: 16px;
+            color: #1e293b;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .status-display {
+            background: white;
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .status-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .status-connected { background: #22c55e; }
+        .status-disconnected { background: #ef4444; }
+        .status-testing { background: #f59e0b; }
+
+        .status-text {
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .test-button {
+            display: block;
+            width: 100%;
+            padding: 12px 16px;
+            margin-bottom: 12px;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            text-align: left;
+            font-size: 14px;
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .test-button:hover {
+            background: #f1f5f9;
+            border-color: #667eea;
+            transform: translateY(-1px);
+        }
+
+        .control-button {
+            padding: 12px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a67d8;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .info-box {
+            background: #f0f9ff;
+            border: 1px solid #0284c7;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+
+        .info-box h4 {
+            color: #0284c7;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .info-box ul {
+            margin: 8px 0;
+            padding-left: 20px;
+        }
+
+        .info-box li {
+            font-size: 13px;
+            color: #0c4a6e;
+            margin-bottom: 4px;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                grid-template-columns: 1fr;
+                height: calc(100vh - 20px);
+            }
+            
+            .input-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .classification-select {
+                min-width: auto;
+                margin-bottom: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Main Chat Section -->
+        <div class="chat-section">
+            <div class="chat-header">
+                <h1>N.O.R.A.</h1>
+                <p>Neumo Organizational Resource Assistant</p>
+            </div>
+
+            <div class="connection-banner testing" id="connectionBanner">
+                🔄 Connecting...
+            </div>
+
+            <div class="chat-messages" id="chatMessages">
+                <div class="welcome-message">
+                    <h2>Welcome to N.O.R.A.</h2>
+                    <p>Your AI-powered HR assistant is ready to help with policies, benefits, and procedures.</p>
+                    <p>Ask about PTO, benefits, attendance, dress code, or any HR-related question!</p>
+                    <p><strong>Tip:</strong> Select your employment classification above for more accurate responses.</p>
+                </div>
+            </div>
+
+            <!-- Typing Indicator -->
+            <div class="typing-indicator" id="typingIndicator">
+                <div class="message bot">
+                    <div class="message-avatar">🤖</div>
+                    <div class="typing-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-input">
+                <div class="input-group">
+                    <select class="classification-select" id="classification">
+                        <option value="">Auto-detect Classification</option>
+                        <option value="exempt">Exempt (Salaried)</option>
+                        <option value="non-exempt">Non-exempt (Hourly)</option>
+                    </select>
+                    <div class="message-input-container">
+                        <textarea 
+                            class="message-input" 
+                            id="messageInput" 
+                            placeholder="Ask me anything about HR policies, benefits, or procedures..."
+                            rows="1"
+                        ></textarea>
+                    </div>
+                    <button class="send-button" id="sendButton">Send</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <!-- Connection Status -->
+            <div class="panel-section">
+                <h3>🔗 Service Status</h3>
+                <div class="status-display">
+                    <div class="status-item">
+                        <span class="status-indicator status-testing" id="healthStatus"></span>
+                        <span class="status-text" id="healthStatusText">Checking connection...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance Stats -->
+            <div class="panel-section">
+                <h3>📊 Performance</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalQuestions">0</div>
+                        <div class="stat-label">Questions Asked</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="avgResponseTime">--</div>
+                        <div class="stat-label">Avg Response</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Tests -->
+            <div class="panel-section">
+                <h3>⚡ Quick Tests</h3>
+                <button class="test-button" data-question="What is the attendance policy?">
+                    📅 Attendance Policy
+                </button>
+                <button class="test-button" data-question="How much PTO do I get?">
+                    🏖️ PTO Allowance
+                </button>
+                <button class="test-button" data-question="What are the holiday pay rates?">
+                    💰 Holiday Pay Rates
+                </button>
+                <button class="test-button" data-question="What is the dress code?">
+                    👔 Dress Code Policy
+                </button>
+                <button class="test-button" data-question="How do I request time off?">
+                    📝 Time Off Process
+                </button>
+                <button class="test-button" data-question="What health insurance options do I have?">
+                    🏥 Health Benefits
+                </button>
+            </div>
+
+            <!-- Usage Guide -->
+            <div class="panel-section">
+                <h3>💡 Usage Guide</h3>
+                <div class="info-box">
+                    <h4>Best for:</h4>
+                    <ul>
+                        <li>Policy questions & clarifications</li>
+                        <li>Benefits & compensation info</li>
+                        <li>Leave & time off procedures</li>
+                        <li>Workplace guidelines</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="panel-section">
+                <h3>🛠️ Controls</h3>
+                <button class="control-button btn-primary" id="reconnectBtn">
+                    🔄 Reconnect
+                </button>
+                <button class="control-button btn-danger" id="clearChatBtn">
+                    🗑️ Clear Chat
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const API_BASE_URL = 'https://hr-chatbot-501344305052.us-east5.run.app';
+        
+        // State
+        let isConnected = false;
+        let documentCount = 0;
+        let totalQuestions = 0;
+        let responseTimes = [];
+        let chatHistory = [];
+
+        // DOM Elements
+        const connectionBanner = document.getElementById('connectionBanner');
+        const chatMessages = document.getElementById('chatMessages');
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+        const classificationSelect = document.getElementById('classification');
+        const typingIndicator = document.getElementById('typingIndicator');
+        
+        // Status indicators
+        const healthStatus = document.getElementById('healthStatus');
+        const healthStatusText = document.getElementById('healthStatusText');
+        
+        // Stats
+        const totalQuestionsEl = document.getElementById('totalQuestions');
+        const avgResponseTimeEl = document.getElementById('avgResponseTime');
+        
+        // Controls
+        const reconnectBtn = document.getElementById('reconnectBtn');
+        const clearChatBtn = document.getElementById('clearChatBtn');
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            setupEventListeners();
+            checkConnection();
+        });
+
+        function setupEventListeners() {
+            sendButton.addEventListener('click', sendMessage);
+            messageInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+            
+            // Auto-resize textarea
+            messageInput.addEventListener('input', () => {
+                messageInput.style.height = 'auto';
+                messageInput.style.height = Math.min(messageInput.scrollHeight, 120) + 'px';
+            });
+            
+            // Test buttons
+            document.querySelectorAll('.test-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    const question = button.getAttribute('data-question');
+                    messageInput.value = question;
+                    sendMessage();
+                });
+            });
+            
+            // Control buttons
+            reconnectBtn.addEventListener('click', checkConnection);
+            clearChatBtn.addEventListener('click', clearChat);
+        }
+
+        async function checkConnection() {
+            updateConnectionBanner('testing', '🔄 Connecting...');
+            setStatus('health', 'testing', 'Checking connection...');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/health`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.services_ready) {
+                        isConnected = true;
+                        documentCount = data.document_count || 0;
+                        updateConnectionBanner('connected', `✅ Connected • ${documentCount} documents ready`);
+                        setStatus('health', 'connected', `Services ready • ${documentCount} documents`);
+                    } else {
+                        throw new Error('Services not ready');
+                    }
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                isConnected = false;
+                updateConnectionBanner('disconnected', '❌ Connection failed');
+                setStatus('health', 'disconnected', `Error: ${error.message}`);
+            }
+        }
+
+        function setStatus(type, status, text) {
+            const indicator = document.getElementById(`${type}Status`);
+            const textEl = document.getElementById(`${type}StatusText`);
+            
+            indicator.className = `status-indicator status-${status}`;
+            textEl.textContent = text;
+        }
+
+        function updateConnectionBanner(status, text) {
+            connectionBanner.className = `connection-banner ${status}`;
+            connectionBanner.textContent = text;
+        }
+
+        async function sendMessage() {
+            const message = messageInput.value.trim();
+            const classification = classificationSelect.value;
+            
+            if (!message) return;
+            
+            if (!isConnected) {
+                addMessage('⚠️ Connection issues detected. Please try reconnecting or contact support.', 'bot');
+                return;
+            }
+
+            // Clear welcome message
+            const welcomeMsg = document.querySelector('.welcome-message');
+            if (welcomeMsg) welcomeMsg.remove();
+
+            // Add user message
+            addMessage(message, 'user');
+            messageInput.value = '';
+            messageInput.style.height = 'auto';
+            sendButton.disabled = true;
+            showTyping();
+
+            const startTime = Date.now();
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/ask`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        question: message,
+                        user_context: {
+                            employment_classification: classification || undefined
+                        }
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.status} ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                const responseTime = Date.now() - startTime;
+                
+                hideTyping();
+                
+                // Update stats
+                totalQuestions++;
+                responseTimes.push(responseTime);
+                updateStats();
+                
+                // Add bot response
+                addMessage(data.answer, 'bot', {
+                    confidence: data.confidence,
+                    responseTime,
+                    cached: data.cached,
+                    needs_escalation: data.needs_escalation,
+                    sources: data.sources
+                });
+
+                // Log to history
+                chatHistory.push({
+                    user_message: message,
+                    bot_response: data.answer,
+                    classification,
+                    timestamp: new Date().toISOString(),
+                    responseTime
+                });
+
+            } catch (error) {
+                hideTyping();
+                addMessage(`❌ Error: ${error.message}. Please try again or contact HR directly.`, 'bot');
+            }
+
+            sendButton.disabled = false;
+        }
+
+        function addMessage(content, sender, metadata = {}) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.textContent = sender === 'user' ? '👤' : '🤖';
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            
+            const messageText = document.createElement('div');
+            messageText.innerHTML = formatMessage(content);
+            messageContent.appendChild(messageText);
+            
+            // Add metadata for bot messages
+            if (sender === 'bot' && Object.keys(metadata).length > 0) {
+                const metaDiv = document.createElement('div');
+                metaDiv.className = 'message-meta';
+                
+                if (metadata.confidence !== undefined) {
+                    const confidenceDiv = document.createElement('div');
+                    confidenceDiv.className = 'confidence-indicator';
+                    confidenceDiv.innerHTML = `
+                        <span>Confidence: ${Math.round(metadata.confidence * 100)}%</span>
+                        <div class="confidence-bar">
+                            <div class="confidence-fill confidence-${getConfidenceLevel(metadata.confidence)}" 
+                                 style="width: ${metadata.confidence * 100}%"></div>
+                        </div>
+                    `;
+                    metaDiv.appendChild(confidenceDiv);
+                }
+                
+                if (metadata.responseTime) {
+                    const timeDiv = document.createElement('div');
+                    timeDiv.textContent = `${metadata.responseTime}ms`;
+                    metaDiv.appendChild(timeDiv);
+                }
+                
+                if (metadata.cached) {
+                    const cachedDiv = document.createElement('div');
+                    cachedDiv.textContent = '💾 Cached';
+                    metaDiv.appendChild(cachedDiv);
+                }
+                
+                if (metadata.needs_escalation) {
+                    const escalationDiv = document.createElement('div');
+                    escalationDiv.textContent = '⚠️ Escalation';
+                    metaDiv.appendChild(escalationDiv);
+                }
+                
+                messageContent.appendChild(metaDiv);
+            }
+            
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(messageContent);
+            
+            chatMessages.appendChild(messageDiv);
+            
+            // Force scroll to bottom
+            setTimeout(() => {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }, 50);
+        }
+
+        function formatMessage(content) {
+            return content
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/\n/g, '<br>')
+                .replace(/• /g, '• ');
+        }
+
+        function getConfidenceLevel(confidence) {
+            if (confidence >= 0.7) return 'high';
+            if (confidence >= 0.4) return 'medium';
+            return 'low';
+        }
+
+        function showTyping() {
+            typingIndicator.classList.add('show');
+            setTimeout(() => {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }, 50);
+        }
+
+        function hideTyping() {
+            typingIndicator.classList.remove('show');
+        }
+
+        function updateStats() {
+            totalQuestionsEl.textContent = totalQuestions;
+            
+            if (responseTimes.length > 0) {
+                const avgTime = responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length;
+                avgResponseTimeEl.textContent = `${Math.round(avgTime)}ms`;
+            }
+        }
+
+        function clearChat() {
+            chatMessages.innerHTML = `
+                <div class="welcome-message">
+                    <h2>Welcome to N.O.R.A.</h2>
+                    <p>Your AI-powered HR assistant is ready to help with policies, benefits, and procedures.</p>
+                    <p>Ask about PTO, benefits, attendance, dress code, or any HR-related question!</p>
+                    <p><strong>Tip:</strong> Select your employment classification above for more accurate responses.</p>
+                </div>
+            `;
+            chatHistory = [];
+            totalQuestions = 0;
+            responseTimes = [];
+            updateStats();
+        }
+
+        // Auto-reconnect on visibility change
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden && !isConnected) {
+                setTimeout(checkConnection, 1000);
+            }
+        });
+    </script>
+</body>
+</html>
