@@ -19,16 +19,15 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1800px; /* MUCH WIDER! */
             margin: 0 auto;
             background: white;
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             overflow: hidden;
             display: grid;
-            grid-template-columns: 1fr 350px;
+            grid-template-columns: 1fr 450px; /* WIDER SIDEBAR TOO */
             height: calc(100vh - 40px);
-            max-height: calc(100vh - 40px);
         }
 
         /* Main Chat Area */
@@ -36,6 +35,7 @@
             display: flex;
             flex-direction: column;
             border-right: 1px solid #e2e8f0;
+            height: 100%;
         }
 
         .chat-header {
@@ -43,6 +43,7 @@
             color: white;
             padding: 24px;
             text-align: center;
+            height: 120px; /* Fixed height */
             flex-shrink: 0;
         }
 
@@ -62,7 +63,11 @@
             text-align: center;
             font-weight: 600;
             transition: all 0.3s ease;
+            height: 50px; /* Fixed height */
             flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .connection-banner.connected {
@@ -80,16 +85,13 @@
             color: #92400e;
         }
 
+        /* FIXED SCROLLING APPROACH */
         .chat-messages {
-            flex: 1;
-            padding: 24px;
-            overflow-y: scroll;
-            overflow-x: hidden;
             background: #f8fafc;
-            height: 0; /* Force height calculation */
-            min-height: 0;
-            max-height: none;
-            position: relative;
+            padding: 24px;
+            overflow-y: auto;
+            height: calc(100vh - 290px); /* Fixed height = total - header - banner - input */
+            flex: none; /* Don't use flex for height */
         }
 
         .welcome-message {
@@ -247,6 +249,7 @@
             padding: 24px;
             background: white;
             border-top: 1px solid #e2e8f0;
+            height: 120px; /* Fixed height */
             flex-shrink: 0;
         }
 
@@ -257,7 +260,7 @@
         }
 
         .classification-select {
-            min-width: 160px;
+            min-width: 180px; /* Wider select */
             padding: 14px 16px;
             border: 2px solid #e2e8f0;
             border-radius: 10px;
@@ -286,7 +289,7 @@
             outline: none;
             transition: border-color 0.2s ease;
             font-family: inherit;
-            max-height: 120px;
+            max-height: 60px;
         }
 
         .message-input:focus {
@@ -316,12 +319,13 @@
             transform: none;
         }
 
-        /* Sidebar */
+        /* WIDER Sidebar */
         .sidebar {
             background: #f8fafc;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
+            width: 450px; /* Explicit width */
         }
 
         .panel-section {
@@ -373,7 +377,7 @@
         .test-button {
             display: block;
             width: 100%;
-            padding: 12px 16px;
+            padding: 16px 20px; /* Bigger buttons */
             margin-bottom: 12px;
             background: white;
             border: 2px solid #e2e8f0;
@@ -474,14 +478,19 @@
             margin-bottom: 4px;
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 1200px) {
             body {
                 padding: 10px;
             }
             
             .container {
+                max-width: 100%;
                 grid-template-columns: 1fr;
                 height: calc(100vh - 20px);
+            }
+            
+            .chat-messages {
+                height: calc(100vh - 350px);
             }
             
             .input-group {
@@ -550,7 +559,7 @@
             </div>
         </div>
 
-        <!-- Sidebar -->
+        <!-- WIDER Sidebar -->
         <div class="sidebar">
             <!-- Connection Status -->
             <div class="panel-section">
@@ -677,7 +686,7 @@
             // Auto-resize textarea
             messageInput.addEventListener('input', () => {
                 messageInput.style.height = 'auto';
-                messageInput.style.height = Math.min(messageInput.scrollHeight, 120) + 'px';
+                messageInput.style.height = Math.min(messageInput.scrollHeight, 60) + 'px';
             });
             
             // Test buttons
@@ -871,25 +880,8 @@
             
             chatMessages.appendChild(messageDiv);
             
-            // Aggressive scroll to bottom with multiple attempts
-            const scrollToBottom = () => {
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-            };
-            
-            // Immediate scroll
-            scrollToBottom();
-            
-            // Delayed scrolls to ensure content is fully rendered
-            setTimeout(scrollToBottom, 10);
-            setTimeout(scrollToBottom, 100);
-            setTimeout(scrollToBottom, 300);
-            
-            // Force reflow to ensure scrolling works
-            chatMessages.style.overflow = 'hidden';
-            setTimeout(() => {
-                chatMessages.style.overflow = 'scroll';
-                scrollToBottom();
-            }, 50);
+            // SIMPLE, RELIABLE SCROLLING
+            chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
         function formatMessage(content) {
@@ -908,13 +900,8 @@
 
         function showTyping() {
             typingIndicator.classList.add('show');
-            // Force scroll when typing indicator appears
-            setTimeout(() => {
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-            }, 10);
-            setTimeout(() => {
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-            }, 100);
+            // Simple scroll for typing indicator
+            chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
         function hideTyping() {
