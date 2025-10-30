@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>N.O.R.A. Testing Dashboard</title>
+    <title>N.O.R.A. Local Testing Dashboard</title>
     <style>
         * {
             margin: 0;
@@ -93,6 +93,21 @@
         .welcome-message h2 {
             color: #1e293b;
             margin-bottom: 16px;
+        }
+
+        .debug-info {
+            background: #f0f9ff;
+            border: 1px solid #0284c7;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 16px 0;
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        .debug-info h4 {
+            color: #0284c7;
+            margin-bottom: 8px;
         }
 
         .message {
@@ -468,7 +483,7 @@
         <div class="chat-section">
             <div class="chat-header">
                 <h1>N.O.R.A.</h1>
-                <p>Neumo Organizational Resource Assistant</p>
+                <p>Local Testing Dashboard</p>
             </div>
 
             <div class="connection-banner testing" id="connectionBanner">
@@ -477,9 +492,14 @@
 
             <div class="chat-messages" id="chatMessages">
                 <div class="welcome-message">
-                    <h2>Welcome to N.O.R.A.</h2>
-                    <p>Your AI-powered HR assistant is ready to help with policies, benefits, and procedures.</p>
-                    <p>Try asking about PTO, benefits, or any HR-related question!</p>
+                    <h2>Welcome to N.O.R.A. Local Testing</h2>
+                    <p>This dashboard tests your Cloud Run service directly from your local browser.</p>
+                    <p>No CSP restrictions here!</p>
+                    
+                    <div class="debug-info" id="debugInfo">
+                        <h4>🔍 Debug Information</h4>
+                        <div id="debugContent">Starting connection tests...</div>
+                    </div>
                 </div>
             </div>
 
@@ -532,6 +552,10 @@
                     <div class="status-item">
                         <span class="status-indicator status-testing" id="docsStatus"></span>
                         <span class="status-text" id="docsStatusText">Loading documents...</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-indicator status-testing" id="anthropicStatus"></span>
+                        <span class="status-text" id="anthropicStatusText">Testing Anthropic API...</span>
                     </div>
                 </div>
             </div>
@@ -597,6 +621,7 @@
         let totalQuestions = 0;
         let responseTimes = [];
         let chatHistory = [];
+        let debugLogs = [];
 
         // DOM Elements
         const connectionBanner = document.getElementById('connectionBanner');
@@ -605,6 +630,7 @@
         const sendButton = document.getElementById('sendButton');
         const classificationSelect = document.getElementById('classification');
         const typingIndicator = document.getElementById('typingIndicator');
+        const debugContent = document.getElementById('debugContent');
         
         // Status indicators
         const apiStatus = document.getElementById('apiStatus');
@@ -613,6 +639,8 @@
         const healthStatusText = document.getElementById('healthStatusText');
         const docsStatus = document.getElementById('docsStatus');
         const docsStatusText = document.getElementById('docsStatusText');
+        const anthropicStatus = document.getElementById('anthropicStatus');
+        const anthropicStatusText = document.getElementById('anthropicStatusText');
         
         // Stats
         const totalQuestionsEl = document.getElementById('totalQuestions');
@@ -627,6 +655,12 @@
             setupEventListeners();
             performConnectionTest();
         });
+
+        function addDebugLog(message) {
+            debugLogs.push(`${new Date().toLocaleTimeString()}: ${message}`);
+            debugContent.innerHTML = debugLogs.slice(-10).join('<br>');
+            console.log(`[DEBUG] ${message}`);
+        }
 
         function setupEventListeners() {
             sendButton.addEventListener('click', sendMessage);
@@ -652,90 +686,114 @@
         }
 
         async function performConnectionTest() {
-            console.log('🔄 Starting comprehensive connection test...');
+            addDebugLog('🔄 Starting comprehensive connection test...');
             
             // Reset status
             updateConnectionBanner('testing', '🔄 Testing connection...');
             setStatus('api', 'testing', 'Testing API...');
             setStatus('health', 'testing', 'Checking health...');
             setStatus('docs', 'testing', 'Loading documents...');
+            setStatus('anthropic', 'testing', 'Testing Anthropic...');
             
             let allTestsPassed = true;
             
             // Test 1: Basic API connectivity
             try {
-                const response = await fetch(`${API_BASE_URL}/`, {
-                    method: 'GET',
-                    mode: 'cors',
-                    headers: {
-                        'Accept': 'application/json',
-                    }
-                });
+                addDebugLog('Testing basic API connectivity...');
+                const response = await fetch(`${API_BASE_URL}/`);
                 
                 if (response.ok) {
                     setStatus('api', 'connected', 'API reachable');
-                    console.log('✅ API connectivity test passed');
+                    addDebugLog('✅ API connectivity test passed');
                 } else {
                     throw new Error(`HTTP ${response.status}`);
                 }
             } catch (error) {
                 setStatus('api', 'disconnected', `API Error: ${error.message}`);
                 allTestsPassed = false;
-                console.error('❌ API connectivity test failed:', error);
+                addDebugLog(`❌ API connectivity test failed: ${error.message}`);
             }
             
             // Test 2: Health endpoint
             try {
-                const response = await fetch(`${API_BASE_URL}/health`, {
-                    method: 'GET',
-                    mode: 'cors',
-                    headers: {
-                        'Accept': 'application/json',
-                    }
-                });
+                addDebugLog('Testing health endpoint...');
+                const response = await fetch(`${API_BASE_URL}/health`);
                 
                 if (response.ok) {
                     const data = await response.json();
                     if (data.services_ready) {
                         setStatus('health', 'connected', 'Services ready');
                         documentCount = data.document_count || 0;
-                        console.log('✅ Health check passed', data);
+                        addDebugLog(`✅ Health check passed: ${JSON.stringify(data)}`);
                     } else {
                         throw new Error('Services not ready');
                     }
                 } else {
-                    throw new Error(`HTTP ${response.status}`);
+                    const errorText = await response.text();
+                    throw new Error(`HTTP ${response.status}: ${errorText}`);
                 }
             } catch (error) {
                 setStatus('health', 'disconnected', `Health Error: ${error.message}`);
                 allTestsPassed = false;
-                console.error('❌ Health check failed:', error);
+                addDebugLog(`❌ Health check failed: ${error.message}`);
             }
             
             // Test 3: Document count
             try {
                 if (documentCount > 0) {
                     setStatus('docs', 'connected', `${documentCount} documents loaded`);
-                    console.log(`✅ Documents loaded: ${documentCount}`);
+                    addDebugLog(`✅ Documents loaded: ${documentCount}`);
                 } else {
                     setStatus('docs', 'disconnected', 'No documents found');
                     allTestsPassed = false;
-                    console.warn('⚠️ No documents loaded');
+                    addDebugLog('⚠️ No documents loaded');
                 }
             } catch (error) {
                 setStatus('docs', 'disconnected', 'Document check failed');
                 allTestsPassed = false;
-                console.error('❌ Document check failed:', error);
+                addDebugLog(`❌ Document check failed: ${error.message}`);
+            }
+
+            // Test 4: Anthropic API by sending a test question
+            try {
+                addDebugLog('Testing Anthropic API with test question...');
+                const response = await fetch(`${API_BASE_URL}/ask`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        question: "Hello, this is a connection test",
+                        user_context: {}
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.answer && !data.answer.includes('unable to generate')) {
+                        setStatus('anthropic', 'connected', 'Anthropic API working');
+                        addDebugLog('✅ Anthropic API test passed');
+                    } else {
+                        setStatus('anthropic', 'disconnected', 'Anthropic API issues');
+                        addDebugLog(`⚠️ Anthropic API issues: ${data.answer}`);
+                    }
+                } else {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP ${response.status}: ${errorText}`);
+                }
+            } catch (error) {
+                setStatus('anthropic', 'disconnected', `Anthropic Error: ${error.message}`);
+                addDebugLog(`❌ Anthropic API test failed: ${error.message}`);
             }
             
             // Update overall connection status
             isConnected = allTestsPassed;
             if (allTestsPassed) {
                 updateConnectionBanner('connected', `✅ Connected • ${documentCount} documents ready`);
-                console.log('🎉 All connection tests passed!');
+                addDebugLog('🎉 All connection tests passed!');
             } else {
                 updateConnectionBanner('disconnected', '❌ Connection issues detected');
-                console.error('💥 Some connection tests failed');
+                addDebugLog('💥 Some connection tests failed');
             }
         }
 
@@ -757,11 +815,6 @@
             const classification = classificationSelect.value;
             
             if (!message) return;
-            
-            if (!isConnected) {
-                addMessage('⚠️ Connection issues detected. Please try reconnecting or contact support.', 'bot');
-                return;
-            }
 
             // Clear welcome message
             const welcomeMsg = document.querySelector('.welcome-message');
@@ -776,14 +829,12 @@
             const startTime = Date.now();
 
             try {
-                console.log('📤 Sending message:', { message, classification });
+                addDebugLog(`📤 Sending message: "${message}" with classification: "${classification}"`);
                 
                 const response = await fetch(`${API_BASE_URL}/ask`, {
                     method: 'POST',
-                    mode: 'cors',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Accept': 'application/json',
                     },
                     body: JSON.stringify({
                         question: message,
@@ -793,16 +844,17 @@
                     })
                 });
 
-                console.log('📥 Response status:', response.status);
+                addDebugLog(`📥 Response status: ${response.status}`);
 
                 if (!response.ok) {
-                    throw new Error(`API Error: ${response.status} ${response.statusText}`);
+                    const errorText = await response.text();
+                    throw new Error(`API Error: ${response.status} ${response.statusText} - ${errorText}`);
                 }
 
                 const data = await response.json();
                 const responseTime = Date.now() - startTime;
                 
-                console.log('📋 Response data:', data);
+                addDebugLog(`📋 Response received in ${responseTime}ms`);
                 
                 hideTyping();
                 
@@ -830,9 +882,9 @@
                 });
 
             } catch (error) {
-                console.error('❌ Send message error:', error);
+                addDebugLog(`❌ Send message error: ${error.message}`);
                 hideTyping();
-                addMessage(`❌ Error: ${error.message}. Please try again or contact support.`, 'bot');
+                addMessage(`❌ Error: ${error.message}`, 'bot');
             }
 
             sendButton.disabled = false;
@@ -934,23 +986,22 @@
         function clearChat() {
             chatMessages.innerHTML = `
                 <div class="welcome-message">
-                    <h2>Welcome to N.O.R.A.</h2>
-                    <p>Your AI-powered HR assistant is ready to help with policies, benefits, and procedures.</p>
-                    <p>Try asking about PTO, benefits, or any HR-related question!</p>
+                    <h2>Welcome to N.O.R.A. Local Testing</h2>
+                    <p>This dashboard tests your Cloud Run service directly from your local browser.</p>
+                    <p>No CSP restrictions here!</p>
+                    
+                    <div class="debug-info" id="debugInfo">
+                        <h4>🔍 Debug Information</h4>
+                        <div id="debugContent">Starting connection tests...</div>
+                    </div>
                 </div>
             `;
             chatHistory = [];
             totalQuestions = 0;
             responseTimes = [];
+            debugLogs = [];
             updateStats();
         }
-
-        // Auto-reconnect on visibility change
-        document.addEventListener('visibilitychange', () => {
-            if (!document.hidden && !isConnected) {
-                setTimeout(performConnectionTest, 1000);
-            }
-        });
     </script>
 </body>
 </html>
