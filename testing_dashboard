@@ -443,8 +443,8 @@
 </head>
 <body>
     <nav style="background: rgba(0,0,0,0.3); padding: 10px 20px; margin-bottom: 20px; border-radius: 8px; display: flex; gap: 20px;">
-        <a href="testing.html" style="color: #00d4ff; text-decoration: none;">📊 Testing Dashboard</a>
-        <a href="knowledge.html" style="color: #00d4ff; text-decoration: none;">📚 Knowledge Bank</a>
+        <a href="testing_dashboard.html" style="color: #00d4ff; text-decoration: none;">📊 Testing Dashboard</a>
+        <a href="index.html" style="color: #00d4ff; text-decoration: none;">📚 Knowledge Bank</a>
     </nav>
     <div class="container">
         <!-- Sidebar -->
