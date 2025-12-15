@@ -224,6 +224,8 @@
         .employee-info .non-exempt { color: #f59e0b; }
         .employee-info .remote { color: #10b981; }  /* Green for remote */
         .employee-info .office { color: #f59e0b; }  /* Amber for office */
+        .employee-info .fulltime { color: #10b981; }  /* Green for full-time */
+        .employee-info .parttime { color: #ff6b6b; font-weight: bold; }  /* Red/bold for part-time */
         .employee-info .full-width { grid-column: 1 / -1; }
 
         /* Quick Tests - Compact 2-column grid */
@@ -514,7 +516,7 @@
             <div class="logo">
                 <h1>N.O.R.A.</h1>
                 <p>Neumo Organizational Resource Assistant</p>
-                <p style="color: #7c3aed;">v4.0 - ADP Integration</p>
+                <p style="color: #7c3aed;">v4.1 - Part-Time Support</p>
             </div>
 
             <!-- Connection Status -->
@@ -548,11 +550,11 @@
                 <div class="employee-info" id="employeeInfo" style="display: none;">
                     <span class="label">Name:</span><span class="value" id="empName">--</span>
                     <span class="label">Class:</span><span class="value" id="empClass">--</span>
-                    <span class="label">Dept:</span><span class="value" id="empDept">--</span>
+                    <span class="label">Status:</span><span class="value" id="empStatus">--</span>
                     <span class="label">Tenure:</span><span class="value" id="empTenure">--</span>
                     <span class="label">Location:</span><span class="value" id="empLocation">--</span>
                     <span class="label">State:</span><span class="value" id="empState">--</span>
-                    <span class="label full-width">PTO Tier: <span id="empPTO">--</span></span>
+                    <span class="label full-width">Dept: <span id="empDept">--</span> | PTO: <span id="empPTO">--</span></span>
                 </div>
             </div>
 
@@ -654,9 +656,16 @@
                     document.getElementById('employeeInfo').style.display = 'grid';
                     document.getElementById('empName').textContent = data.employee_name;
                     
+                    // Employment classification (exempt/non-exempt)
                     const classEl = document.getElementById('empClass');
                     classEl.textContent = data.employment_classification;
                     classEl.className = 'value ' + (data.employment_classification === 'exempt' ? 'exempt' : 'non-exempt');
+                    
+                    // Employment status (full-time/part-time) - NEW!
+                    const statusEl = document.getElementById('empStatus');
+                    const isFullTime = data.is_full_time !== false; // default to full-time if not specified
+                    statusEl.textContent = isFullTime ? 'Full-time' : 'Part-time';
+                    statusEl.className = 'value ' + (isFullTime ? 'fulltime' : 'parttime');
                     
                     document.getElementById('empDept').textContent = data.department || '--';
                     document.getElementById('empTenure').textContent = (data.tenure_years?.toFixed(1) || '0') + 'yr';
@@ -670,9 +679,10 @@
                     const stateEl = document.getElementById('empState');
                     stateEl.textContent = data.state || '--';
                     
-                    // Build status message with location
+                    // Build status message with employment status and location
+                    const empStatusBadge = !isFullTime ? ' | ⏰ Part-time' : '';
                     const locInfo = data.state ? ` | ${data.location_type === 'remote' ? '🏠' : '🏢'} ${data.state}` : '';
-                    addMessage('bot', `✅ <strong>${data.employee_name}</strong> loaded | ${data.employment_classification} | ${data.pto_tier}${locInfo}`);
+                    addMessage('bot', `✅ <strong>${data.employee_name}</strong> loaded | ${data.employment_classification}${empStatusBadge} | ${data.pto_tier}${locInfo}`);
                 } else {
                     clearEmployeeInfo();
                     addMessage('bot', `⚠️ Employee not found: ${email}`);
