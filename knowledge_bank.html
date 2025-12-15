@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>N.O.R.A. Knowledge Bank Admin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Nav Toggle */
+        .nav-toggle {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 1001;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: #888;
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: all 0.2s;
+        }
+
+        .nav-toggle:hover {
+            background: rgba(0, 0, 0, 0.7);
+            color: #00d4ff;
+            border-color: #00d4ff;
+        }
+
+        .nav-menu {
+            position: fixed;
+            top: 45px;
+            right: 10px;
+            z-index: 1001;
+            background: rgba(26, 26, 46, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 8px 0;
+            display: none;
+            min-width: 180px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .nav-menu.active {
+            display: block;
+        }
+
+        .nav-menu a {
+            display: block;
+            padding: 10px 16px;
+            color: #e0e0e0;
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: background 0.2s;
+        }
+
+        .nav-menu a:hover {
+            background: rgba(0, 212, 255, 0.1);
+            color: #00d4ff;
+        }
+
+        .nav-menu a.active {
+            color: #00d4ff;
+            background: rgba(0, 212, 255, 0.1);
+        }
+
+        /* Login Modal */
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-overlay.hidden {
+            display: none;
+        }
+
+        .login-box {
+            background: #1a1a2e;
+            border-radius: 12px;
+            padding: 40px;
+            width: 90%;
+            max-width: 400px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+
+        .login-box h2 {
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #00d4ff, #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .login-box p {
+            color: #888;
+            margin-bottom: 25px;
+            font-size: 0.9rem;
+        }
+
+        .login-box .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .login-box label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.85rem;
+            color: #888;
+        }
+
+        .login-box input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.3);
+            color: #e0e0e0;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .login-box input:focus {
+            outline: none;
+            border-color: #00d4ff;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #00d4ff, #7c3aed);
+            border: none;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            margin-top: 10px;
+            transition: transform 0.2s;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .login-error {
+            color: #ef4444;
+            font-size: 0.85rem;
+            margin-top: 10px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            background: linear-gradient(135deg, #00d4ff, #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        header p {
+            color: #888;
+            margin-top: 5px;
+        }
+
+        .user-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 10px 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00d4ff, #7c3aed);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .user-name {
+            font-weight: 500;
+        }
+
+        .user-email {
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        .logout-btn {
+            padding: 8px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: transparent;
+            color: #e0e0e0;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+
+        .api-config {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .api-config label {
+            color: #888;
+        }
+
+        .api-config input {
+            padding: 8px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.3);
+            color: #e0e0e0;
+            border-radius: 6px;
+            width: 300px;
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 15px 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            min-width: 150px;
+        }
+
+        .stat-card .number {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #00d4ff;
+        }
+
+        .stat-card .label {
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar h3 {
+            font-size: 0.9rem;
+            color: #a78bfa;
+            margin-bottom: 10px;
+        }
+
+        .category-list {
+            list-style: none;
+        }
+
+        .category-list li {
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-bottom: 4px;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .category-list li:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .category-list li.active {
+            background: rgba(124, 58, 237, 0.3);
+            color: #a78bfa;
+        }
+
+        .category-list li .count {
+            float: right;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .content-header h2 {
+            font-size: 1.2rem;
+        }
+
+        .add-btn {
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #00d4ff, #7c3aed);
+            border: none;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+
+        .add-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Entry List */
+        .entry-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .entry-card {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-left: 3px solid #10b981;
+        }
+
+        .entry-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .entry-topic {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .entry-category {
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 10px;
+            background: rgba(124, 58, 237, 0.2);
+            color: #a78bfa;
+        }
+
+        .entry-content {
+            font-size: 0.9rem;
+            color: #ccc;
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+
+        .entry-keywords {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        .keyword-tag {
+            background: rgba(124, 58, 237, 0.2);
+            color: #a78bfa;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+        }
+
+        .entry-meta {
+            font-size: 0.75rem;
+            color: #666;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .entry-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .entry-actions button {
+            padding: 5px 12px;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: transparent;
+            color: #e0e0e0;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+
+        .entry-actions button:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .entry-actions button.delete {
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: #1a1a2e;
+            border-radius: 12px;
+            padding: 25px;
+            width: 90%;
+            max-width: 600px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .modal h3 {
+            margin-bottom: 20px;
+            color: #00d4ff;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.85rem;
+            color: #888;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.3);
+            color: #e0e0e0;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-group small {
+            color: #666;
+            font-size: 0.75rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-actions button {
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .btn-cancel {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #e0e0e0;
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, #00d4ff, #7c3aed);
+            border: none;
+            color: white;
+        }
+
+        /* Toast notifications */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 200;
+            animation: slideIn 0.3s ease;
+        }
+
+        .toast.success {
+            background: #10b981;
+        }
+
+        .toast.error {
+            background: #ef4444;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .empty-state p {
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .user-bar {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Nav Toggle -->
+    <button class="nav-toggle" onclick="document.querySelector('.nav-menu').classList.toggle('active')">☰ Menu</button>
+    <div class="nav-menu">
+        <a href="index.html">📊 Testing Dashboard</a>
+        <a href="knowledge_bank.html" class="active">📚 Knowledge Bank</a>
+    </div>
+
+    <!-- Login Overlay -->
+    <div class="login-overlay" id="loginOverlay">
+        <div class="login-box">
+            <h2>📚 N.O.R.A. Knowledge Bank</h2>
+            <p>Sign in to manage HR knowledge entries</p>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" placeholder="firstname.lastname@neumo.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" placeholder="Enter your password" required>
+                </div>
+                <button type="submit" class="login-btn" id="loginBtn">Sign In</button>
+                <div class="login-error" id="loginError"></div>
+            </form>
+        </div>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>📚 N.O.R.A. Knowledge Bank</h1>
+            <p>Curate HR institutional knowledge to improve N.O.R.A.'s responses</p>
+        </header>
+
+        <!-- User Bar -->
+        <div class="user-bar" id="userBar" style="display: none;">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">AG</div>
+                <div>
+                    <div class="user-name" id="userName">Andrew Gibson</div>
+                    <div class="user-email" id="userEmail">andrew.gibson@neumo.com</div>
+                </div>
+            </div>
+            <button class="logout-btn" onclick="logout()">Sign Out</button>
+        </div>
+
+        <div class="api-config">
+            <label>API:</label>
+            <input type="text" id="apiUrl" value="https://hr-chatbot-501344305052.us-east5.run.app">
+            <button onclick="loadData()" style="padding: 8px 16px; border-radius: 6px; border: 1px solid #00d4ff; background: transparent; color: #00d4ff; cursor: pointer;">Refresh</button>
+        </div>
+
+        <div class="stats-bar" id="statsBar">
+            <div class="stat-card">
+                <div class="number" id="totalEntries">-</div>
+                <div class="label">Total Entries</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="categoriesCount">-</div>
+                <div class="label">Categories</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="usageCount">-</div>
+                <div class="label">Total Uses</div>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <div class="sidebar">
+                <h3>📂 Categories</h3>
+                <ul class="category-list" id="categoryList">
+                    <li class="active" data-category="all">All Entries <span class="count">-</span></li>
+                </ul>
+            </div>
+
+            <div class="main-content">
+                <div class="content-header">
+                    <h2 id="contentTitle">All Knowledge Entries</h2>
+                    <button class="add-btn" onclick="openModal()">+ Add Entry</button>
+                </div>
+                <div class="entry-list" id="entryList">
+                    <div class="empty-state">
+                        <p>Loading entries...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <h3 id="modalTitle">Add Knowledge Entry</h3>
+            <form id="entryForm">
+                <input type="hidden" id="entryId">
+                
+                <div class="form-group">
+                    <label>Category *</label>
+                    <select id="entryCategory" required>
+                        <option value="">Select category...</option>
+                        <option value="dress_code">Dress Code</option>
+                        <option value="pto_leave">PTO & Leave</option>
+                        <option value="benefits">Benefits</option>
+                        <option value="compensation">Compensation</option>
+                        <option value="remote_work">Remote Work</option>
+                        <option value="office_policies">Office Policies</option>
+                        <option value="compliance">Compliance</option>
+                        <option value="onboarding">Onboarding</option>
+                        <option value="performance">Performance</option>
+                        <option value="state_specific">State Specific</option>
+                        <option value="general">General</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Topic Title *</label>
+                    <input type="text" id="entryTopic" placeholder="e.g., Business Casual Definition" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Content *</label>
+                    <textarea id="entryContent" placeholder="Write the knowledge content here. This will be used to help N.O.R.A. answer questions more accurately." required></textarea>
+                    <small>Write as if explaining to N.O.R.A. Be clear and specific.</small>
+                </div>
+
+                <div class="form-group">
+                    <label>Keywords (comma-separated) *</label>
+                    <input type="text" id="entryKeywords" placeholder="dress code, business casual, jeans, polo" required>
+                    <small>Words/phrases that should trigger this knowledge</small>
+                </div>
+
+                <div class="form-group">
+                    <label>Internal Notes (optional)</label>
+                    <input type="text" id="entryNotes" placeholder="Notes visible only to admins">
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn-save">Save Entry</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // =========================================================================
+        // STATE
+        // =========================================================================
+        let allEntries = [];
+        let categories = [];
+        let currentCategory = 'all';
+        let authToken = localStorage.getItem('nora_kb_token');
+        let currentUser = null;
+
+        // =========================================================================
+        // INITIALIZATION
+        // =========================================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            document.getElementById('entryForm').addEventListener('submit', saveEntry);
+            
+            // Check if we have a stored token
+            if (authToken) {
+                validateToken();
+            } else {
+                showLogin();
+            }
+        });
+
+        // =========================================================================
+        // AUTHENTICATION
+        // =========================================================================
+        async function handleLogin(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const errorEl = document.getElementById('loginError');
+            const btnEl = document.getElementById('loginBtn');
+            
+            errorEl.textContent = '';
+            btnEl.disabled = true;
+            btnEl.textContent = 'Signing in...';
+            
+            const apiUrl = document.getElementById('apiUrl').value;
+            
+            try {
+                const res = await fetch(`${apiUrl}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    authToken = data.token;
+                    currentUser = {
+                        email: data.email,
+                        displayName: data.display_name
+                    };
+                    localStorage.setItem('nora_kb_token', authToken);
+                    
+                    hideLogin();
+                    updateUserBar();
+                    loadData();
+                } else {
+                    errorEl.textContent = data.error || 'Login failed';
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                errorEl.textContent = 'Connection error. Check API URL.';
+            } finally {
+                btnEl.disabled = false;
+                btnEl.textContent = 'Sign In';
+            }
+        }
+
+        async function validateToken() {
+            const apiUrl = document.getElementById('apiUrl').value;
+            
+            try {
+                const res = await fetch(`${apiUrl}/auth/me`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    currentUser = {
+                        email: data.email,
+                        displayName: data.display_name
+                    };
+                    hideLogin();
+                    updateUserBar();
+                    loadData();
+                } else {
+                    // Token invalid, show login
+                    localStorage.removeItem('nora_kb_token');
+                    authToken = null;
+                    showLogin();
+                }
+            } catch (error) {
+                console.error('Token validation error:', error);
+                showLogin();
+            }
+        }
+
+        function showLogin() {
+            document.getElementById('loginOverlay').classList.remove('hidden');
+            document.getElementById('userBar').style.display = 'none';
+        }
+
+        function hideLogin() {
+            document.getElementById('loginOverlay').classList.add('hidden');
+            document.getElementById('userBar').style.display = 'flex';
+        }
+
+        function updateUserBar() {
+            if (currentUser) {
+                document.getElementById('userName').textContent = currentUser.displayName;
+                document.getElementById('userEmail').textContent = currentUser.email;
+                
+                // Get initials for avatar
+                const initials = currentUser.displayName
+                    .split(' ')
+                    .map(n => n[0])
+                    .join('')
+                    .toUpperCase();
+                document.getElementById('userAvatar').textContent = initials;
+            }
+        }
+
+        async function logout() {
+            const apiUrl = document.getElementById('apiUrl').value;
+            
+            try {
+                await fetch(`${apiUrl}/auth/logout`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+            } catch (e) {
+                // Ignore logout errors
+            }
+            
+            localStorage.removeItem('nora_kb_token');
+            authToken = null;
+            currentUser = null;
+            showLogin();
+        }
+
+        // =========================================================================
+        // API HELPERS
+        // =========================================================================
+        function getAuthHeaders() {
+            return {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`
+            };
+        }
+
+        async function apiCall(endpoint, options = {}) {
+            const apiUrl = document.getElementById('apiUrl').value;
+            
+            const res = await fetch(`${apiUrl}${endpoint}`, {
+                ...options,
+                headers: {
+                    ...getAuthHeaders(),
+                    ...(options.headers || {})
+                }
+            });
+            
+            if (res.status === 401) {
+                // Session expired
+                localStorage.removeItem('nora_kb_token');
+                authToken = null;
+                showLogin();
+                throw new Error('Session expired');
+            }
+            
+            return res;
+        }
+
+        // =========================================================================
+        // DATA LOADING
+        // =========================================================================
+        async function loadData() {
+            if (!authToken) return;
+            
+            try {
+                // Load stats
+                const statsRes = await apiCall('/knowledge-bank/stats');
+                const stats = await statsRes.json();
+                
+                document.getElementById('totalEntries').textContent = stats.total_entries || 0;
+                document.getElementById('categoriesCount').textContent = Object.keys(stats.by_category || {}).length;
+                
+                // Calculate total usage
+                const totalUsage = (stats.most_used || []).reduce((sum, e) => sum + (e.usage_count || 0), 0);
+                document.getElementById('usageCount').textContent = totalUsage;
+                
+                // Update category list with counts
+                categories = stats.categories_available || [];
+                updateCategoryList(stats.by_category || {}, stats.total_entries);
+                
+                // Load entries
+                const entriesRes = await apiCall('/knowledge-bank/entries');
+                const data = await entriesRes.json();
+                allEntries = data.entries || [];
+                
+                renderEntries();
+                
+            } catch (error) {
+                if (error.message !== 'Session expired') {
+                    console.error('Error loading data:', error);
+                    showToast('Failed to load data. Check API connection.', 'error');
+                }
+            }
+        }
+
+        function updateCategoryList(byCategoryCount, total) {
+            const list = document.getElementById('categoryList');
+            list.innerHTML = `<li class="${currentCategory === 'all' ? 'active' : ''}" data-category="all" onclick="filterCategory('all')">All Entries <span class="count">${total}</span></li>`;
+            
+            const categoryNames = {
+                'dress_code': '👔 Dress Code',
+                'pto_leave': '🏖️ PTO & Leave',
+                'benefits': '💼 Benefits',
+                'compensation': '💰 Compensation',
+                'remote_work': '🏠 Remote Work',
+                'office_policies': '🏢 Office Policies',
+                'compliance': '📋 Compliance',
+                'onboarding': '🚀 Onboarding',
+                'performance': '📈 Performance',
+                'state_specific': '🗺️ State Specific',
+                'general': '📝 General'
+            };
+            
+            for (const cat of categories) {
+                const count = byCategoryCount[cat] || 0;
+                const name = categoryNames[cat] || cat;
+                list.innerHTML += `<li class="${currentCategory === cat ? 'active' : ''}" data-category="${cat}" onclick="filterCategory('${cat}')">${name} <span class="count">${count}</span></li>`;
+            }
+        }
+
+        function filterCategory(category) {
+            currentCategory = category;
+            document.querySelectorAll('.category-list li').forEach(li => {
+                li.classList.toggle('active', li.dataset.category === category);
+            });
+            
+            const categoryNames = {
+                'all': 'All Knowledge Entries',
+                'dress_code': 'Dress Code',
+                'pto_leave': 'PTO & Leave',
+                'benefits': 'Benefits',
+                'compensation': 'Compensation',
+                'remote_work': 'Remote Work',
+                'office_policies': 'Office Policies',
+                'compliance': 'Compliance',
+                'onboarding': 'Onboarding',
+                'performance': 'Performance',
+                'state_specific': 'State Specific',
+                'general': 'General'
+            };
+            
+            document.getElementById('contentTitle').textContent = categoryNames[category] || category;
+            renderEntries();
+        }
+
+        function renderEntries() {
+            const list = document.getElementById('entryList');
+            
+            let filtered = allEntries;
+            if (currentCategory !== 'all') {
+                filtered = allEntries.filter(e => e.category === currentCategory);
+            }
+            
+            if (filtered.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <p>No entries in this category yet.</p>
+                        <button class="add-btn" onclick="openModal()">+ Add First Entry</button>
+                    </div>
+                `;
+                return;
+            }
+            
+            const categoryNames = {
+                'dress_code': 'Dress Code',
+                'pto_leave': 'PTO & Leave',
+                'benefits': 'Benefits',
+                'compensation': 'Compensation',
+                'remote_work': 'Remote Work',
+                'office_policies': 'Office Policies',
+                'compliance': 'Compliance',
+                'onboarding': 'Onboarding',
+                'performance': 'Performance',
+                'state_specific': 'State Specific',
+                'general': 'General'
+            };
+            
+            list.innerHTML = filtered.map(entry => `
+                <div class="entry-card">
+                    <div class="entry-header">
+                        <span class="entry-topic">${escapeHtml(entry.topic)}</span>
+                        <span class="entry-category">${categoryNames[entry.category] || entry.category}</span>
+                    </div>
+                    <div class="entry-content">${escapeHtml(entry.content)}</div>
+                    <div class="entry-keywords">
+                        ${entry.keywords.map(k => `<span class="keyword-tag">${escapeHtml(k)}</span>`).join('')}
+                    </div>
+                    <div class="entry-meta">
+                        <span>Added by: ${escapeHtml(entry.added_by)} on ${formatDate(entry.added_date)}</span>
+                        <span>Used: ${entry.usage_count || 0} times</span>
+                    </div>
+                    <div class="entry-actions">
+                        <button onclick="editEntry('${entry.id}')">Edit</button>
+                        <button class="delete" onclick="deleteEntry('${entry.id}')">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // =========================================================================
+        // CRUD OPERATIONS
+        // =========================================================================
+        function openModal(entry = null) {
+            document.getElementById('modalOverlay').classList.add('active');
+            document.getElementById('modalTitle').textContent = entry ? 'Edit Knowledge Entry' : 'Add Knowledge Entry';
+            
+            if (entry) {
+                document.getElementById('entryId').value = entry.id;
+                document.getElementById('entryCategory').value = entry.category;
+                document.getElementById('entryTopic').value = entry.topic;
+                document.getElementById('entryContent').value = entry.content;
+                document.getElementById('entryKeywords').value = entry.keywords.join(', ');
+                document.getElementById('entryNotes').value = entry.notes || '';
+            } else {
+                document.getElementById('entryForm').reset();
+                document.getElementById('entryId').value = '';
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+        }
+
+        function editEntry(id) {
+            const entry = allEntries.find(e => e.id === id);
+            if (entry) {
+                openModal(entry);
+            }
+        }
+
+        async function saveEntry(e) {
+            e.preventDefault();
+            
+            const entryId = document.getElementById('entryId').value;
+            const isEdit = !!entryId;
+            
+            const keywords = document.getElementById('entryKeywords').value
+                .split(',')
+                .map(k => k.trim())
+                .filter(k => k);
+            
+            const data = {
+                category: document.getElementById('entryCategory').value,
+                topic: document.getElementById('entryTopic').value,
+                content: document.getElementById('entryContent').value,
+                keywords: keywords,
+                notes: document.getElementById('entryNotes').value
+            };
+            
+            try {
+                const res = await apiCall(
+                    isEdit ? `/knowledge-bank/entries/${entryId}` : '/knowledge-bank/entries',
+                    {
+                        method: isEdit ? 'PUT' : 'POST',
+                        body: JSON.stringify(data)
+                    }
+                );
+                
+                if (res.ok) {
+                    showToast(isEdit ? 'Entry updated!' : 'Entry created!', 'success');
+                    closeModal();
+                    loadData();
+                } else {
+                    const err = await res.json();
+                    showToast(err.detail || 'Failed to save entry', 'error');
+                }
+            } catch (error) {
+                if (error.message !== 'Session expired') {
+                    showToast('Error saving entry', 'error');
+                }
+            }
+        }
+
+        async function deleteEntry(id) {
+            if (!confirm('Are you sure you want to delete this entry?')) return;
+            
+            try {
+                const res = await apiCall(`/knowledge-bank/entries/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (res.ok) {
+                    showToast('Entry deleted', 'success');
+                    loadData();
+                } else {
+                    showToast('Failed to delete entry', 'error');
+                }
+            } catch (error) {
+                if (error.message !== 'Session expired') {
+                    showToast('Error deleting entry', 'error');
+                }
+            }
+        }
+
+        // =========================================================================
+        // UTILITIES
+        // =========================================================================
+        function showToast(message, type) {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            return new Date(dateStr).toLocaleDateString();
+        }
+    </script>
+</body>
+</html>
