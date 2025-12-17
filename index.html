@@ -13,12 +13,12 @@
 
         html, body {
             height: 100%;
-            overflow: hidden; /* NO page scroll */
+            overflow: hidden;
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            background: linear-gradient(135deg, #2a2a4e 0%, #263354 50%, #1a4a7a 100%);
             color: #e0e0e0;
         }
 
@@ -87,10 +87,10 @@
             gap: 15px;
             height: 100vh;
             padding: 15px;
-            overflow: hidden; /* NO container scroll */
+            overflow: hidden;
         }
 
-        /* Sidebar - Fixed height, internal scroll if needed */
+        /* Sidebar */
         .sidebar {
             background: rgba(255, 255, 255, 0.05);
             border-radius: 12px;
@@ -123,7 +123,7 @@
             margin-top: 2px;
         }
 
-        /* Status Card - Compact */
+        /* Status Card */
         .status-card {
             background: rgba(0, 212, 255, 0.1);
             border-radius: 8px;
@@ -159,7 +159,7 @@
             gap: 2px 8px;
         }
 
-        /* API Config - Compact */
+        /* API Config */
         .api-config {
             display: flex;
             align-items: center;
@@ -182,7 +182,7 @@
             font-size: 0.75rem;
         }
 
-        /* Employee Selector - Compact */
+        /* Employee Selector */
         .employee-section {
             background: rgba(124, 58, 237, 0.1);
             border-radius: 8px;
@@ -222,13 +222,11 @@
         .employee-info .value { color: #e0e0e0; font-weight: 500; }
         .employee-info .exempt { color: #00d4ff; }
         .employee-info .non-exempt { color: #f59e0b; }
-        .employee-info .remote { color: #10b981; }  /* Green for remote */
-        .employee-info .office { color: #f59e0b; }  /* Amber for office */
-        .employee-info .fulltime { color: #10b981; }  /* Green for full-time */
-        .employee-info .parttime { color: #ff6b6b; font-weight: bold; }  /* Red/bold for part-time */
+        .employee-info .remote { color: #10b981; }
+        .employee-info .office { color: #f59e0b; }
         .employee-info .full-width { grid-column: 1 / -1; }
 
-        /* Quick Tests - Compact 2-column grid */
+        /* Quick Tests */
         .quick-tests h3 {
             font-size: 0.75rem;
             color: #888;
@@ -265,11 +263,11 @@
             grid-column: 1 / -1;
         }
 
-        /* Main Chat Area - FIXED HEIGHT */
+        /* Main Chat Area */
         .main-area {
             display: flex;
             flex-direction: column;
-            overflow: hidden; /* Critical: no overflow */
+            overflow: hidden;
             height: calc(100vh - 30px);
         }
 
@@ -282,8 +280,8 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
             flex-direction: column;
-            overflow: hidden; /* Critical: contain the chat */
-            min-height: 0; /* Allow flex child to shrink */
+            overflow: hidden;
+            min-height: 0;
         }
 
         .chat-header {
@@ -292,7 +290,7 @@
             align-items: center;
             padding-bottom: 10px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            flex-shrink: 0; /* Don't shrink header */
+            flex-shrink: 0;
         }
 
         .chat-header h2 {
@@ -315,12 +313,12 @@
             background: rgba(255, 68, 68, 0.3);
         }
 
-        /* Messages - THIS IS THE ONLY SCROLLABLE AREA */
+        /* Messages */
         .messages {
             flex: 1;
             overflow-y: auto;
             padding: 10px 5px;
-            min-height: 0; /* Critical for flex scroll */
+            min-height: 0;
         }
 
         .message {
@@ -389,13 +387,13 @@
         .confidence-medium { background: rgba(255, 193, 7, 0.2); color: #ffc107; }
         .confidence-low { background: rgba(255, 68, 68, 0.2); color: #ff4444; }
 
-        /* Input Area - Fixed at bottom */
+        /* Input Area */
         .input-area {
             display: flex;
             gap: 8px;
             padding-top: 10px;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
-            flex-shrink: 0; /* Don't shrink input */
+            flex-shrink: 0;
         }
 
         .input-area input {
@@ -463,6 +461,49 @@
             40% { transform: scale(1); }
         }
 
+        /* Mo Fetch Animation */
+        .mo-fetch-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .mo-fetch-container img {
+            height: 180px;
+            width: auto;
+        }
+
+        .mo-fetch-container p {
+            color: #888;
+            font-size: 0.85rem;
+            margin-top: 12px;
+            font-style: italic;
+        }
+
+        /* Mo loading animation - centered */
+        .mo-loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .mo-loading img {
+            height: 200px;
+            width: auto;
+        }
+
+        .mo-loading p {
+            color: #888;
+            font-size: 0.85rem;
+            margin-top: 12px;
+            font-style: italic;
+        }
+
         /* Markdown in bot responses */
         .message.bot .bubble ul,
         .message.bot .bubble ol {
@@ -504,10 +545,10 @@
 </head>
 <body>
     <!-- Nav Toggle -->
-    <button class="nav-toggle" onclick="document.querySelector('.nav-menu').classList.toggle('active')">☰ Menu</button>
+    <button class="nav-toggle" onclick="document.querySelector('.nav-menu').classList.toggle('active')">&#9776; Menu</button>
     <div class="nav-menu">
-        <a href="index.html" class="active">📊 Testing Dashboard</a>
-        <a href="knowledge_bank.html">📚 Knowledge Bank</a>
+        <a href="index.html" class="active">&#128202; Testing Dashboard</a>
+        <a href="knowledge_bank.html">&#128218; Knowledge Bank</a>
     </div>
 
     <div class="container">
@@ -516,7 +557,7 @@
             <div class="logo">
                 <h1>N.O.R.A.</h1>
                 <p>Neumo Organizational Resource Assistant</p>
-                <p style="color: #7c3aed;">v4.1 - Part-Time Support</p>
+                <p style="color: #7c3aed;">v4.1 - ADP Integration</p>
             </div>
 
             <!-- Connection Status -->
@@ -536,7 +577,7 @@
 
             <!-- Employee Selector -->
             <div class="employee-section">
-                <h3>👤 Employee (ADP)</h3>
+                <h3>&#128100; Employee (ADP)</h3>
                 <select class="employee-select" id="employeeSelect">
                     <option value="">-- Select Employee --</option>
                     <option value="jalberts@neumo.com">John Alberts (Non-exempt, New)</option>
@@ -550,27 +591,27 @@
                 <div class="employee-info" id="employeeInfo" style="display: none;">
                     <span class="label">Name:</span><span class="value" id="empName">--</span>
                     <span class="label">Class:</span><span class="value" id="empClass">--</span>
-                    <span class="label">Status:</span><span class="value" id="empStatus">--</span>
+                    <span class="label">Dept:</span><span class="value" id="empDept">--</span>
                     <span class="label">Tenure:</span><span class="value" id="empTenure">--</span>
                     <span class="label">Location:</span><span class="value" id="empLocation">--</span>
                     <span class="label">State:</span><span class="value" id="empState">--</span>
-                    <span class="label full-width">Dept: <span id="empDept">--</span> | PTO: <span id="empPTO">--</span></span>
+                    <span class="label full-width">PTO Tier: <span id="empPTO">--</span></span>
                 </div>
             </div>
 
-            <!-- Quick Tests - Compact Grid -->
+            <!-- Quick Tests -->
             <div class="quick-tests">
-                <h3>⚡ Quick Tests</h3>
+                <h3>&#9889; Quick Tests</h3>
                 <div class="quick-tests-grid">
-                    <button class="test-btn" onclick="askQuestion('How much PTO do I get?')">🏖️ PTO</button>
-                    <button class="test-btn" onclick="askQuestion('What are the holidays?')">📅 Holidays</button>
-                    <button class="test-btn" onclick="askQuestion('Floating holidays?')">🎈 Floating</button>
-                    <button class="test-btn" onclick="askQuestion('Dress code?')">👔 Dress</button>
-                    <button class="test-btn" onclick="askQuestion('Overtime policy?')">⏰ Overtime</button>
-                    <button class="test-btn" onclick="askQuestion('FMLA leave?')">🏥 FMLA</button>
-                    <button class="test-btn" onclick="askQuestion('What equipment do remote workers get?')">🏠 Remote</button>
-                    <button class="test-btn" onclick="askQuestion('Office parking policy?')">🏢 Office</button>
-                    <button class="test-btn wide" onclick="askQuestion('I want to file a harassment complaint')">⚠️ Sensitive Topic Test</button>
+                    <button class="test-btn" onclick="askQuestion('How much PTO do I get?')">&#127958; PTO</button>
+                    <button class="test-btn" onclick="askQuestion('What are the holidays?')">&#128197; Holidays</button>
+                    <button class="test-btn" onclick="askQuestion('Floating holidays?')">&#127880; Floating</button>
+                    <button class="test-btn" onclick="askQuestion('Dress code?')">&#128084; Dress</button>
+                    <button class="test-btn" onclick="askQuestion('Overtime policy?')">&#9200; Overtime</button>
+                    <button class="test-btn" onclick="askQuestion('FMLA leave?')">&#127973; FMLA</button>
+                    <button class="test-btn" onclick="askQuestion('What equipment do remote workers get?')">&#127968; Remote</button>
+                    <button class="test-btn" onclick="askQuestion('Office parking policy?')">&#127970; Office</button>
+                    <button class="test-btn wide" onclick="askQuestion('I want to file a harassment complaint')">&#9888; Sensitive Topic Test</button>
                 </div>
             </div>
         </div>
@@ -579,7 +620,7 @@
         <div class="main-area">
             <div class="chat-container">
                 <div class="chat-header">
-                    <h2>💬 Chat with N.O.R.A.</h2>
+                    <h2>&#128172; Chat with N.O.R.A.</h2>
                     <button class="clear-btn" onclick="clearChat()">Clear</button>
                 </div>
                 <div class="messages" id="messages">
@@ -601,6 +642,7 @@
     <script>
         let sessionId = null;
         let selectedEmployee = null;
+        let hasShownMoAnimation = false;
 
         document.addEventListener('DOMContentLoaded', () => {
             checkConnection();
@@ -630,7 +672,7 @@
                 
                 indicator.classList.add('connected');
                 document.getElementById('docCount').textContent = data.document_count || '0';
-                document.getElementById('adpStatus').textContent = data.employee_context_service ? '✅' : '❌';
+                document.getElementById('adpStatus').textContent = data.employee_context_service ? '\u2705' : '\u274C';
             } catch (error) {
                 indicator.classList.remove('connected');
                 document.getElementById('docCount').textContent = 'Err';
@@ -656,16 +698,9 @@
                     document.getElementById('employeeInfo').style.display = 'grid';
                     document.getElementById('empName').textContent = data.employee_name;
                     
-                    // Employment classification (exempt/non-exempt)
                     const classEl = document.getElementById('empClass');
                     classEl.textContent = data.employment_classification;
                     classEl.className = 'value ' + (data.employment_classification === 'exempt' ? 'exempt' : 'non-exempt');
-                    
-                    // Employment status (full-time/part-time) - NEW!
-                    const statusEl = document.getElementById('empStatus');
-                    const isFullTime = data.is_full_time !== false; // default to full-time if not specified
-                    statusEl.textContent = isFullTime ? 'Full-time' : 'Part-time';
-                    statusEl.className = 'value ' + (isFullTime ? 'fulltime' : 'parttime');
                     
                     document.getElementById('empDept').textContent = data.department || '--';
                     document.getElementById('empTenure').textContent = (data.tenure_years?.toFixed(1) || '0') + 'yr';
@@ -673,22 +708,21 @@
                     
                     // Location info
                     const locEl = document.getElementById('empLocation');
-                    locEl.textContent = data.location_type === 'remote' ? '🏠 Remote' : '🏢 Office';
+                    locEl.textContent = data.location_type === 'remote' ? '\u{1F3E0} Remote' : '\u{1F3E2} Office';
                     locEl.className = 'value ' + (data.location_type || 'office');
                     
                     const stateEl = document.getElementById('empState');
                     stateEl.textContent = data.state || '--';
                     
-                    // Build status message with employment status and location
-                    const empStatusBadge = !isFullTime ? ' | ⏰ Part-time' : '';
-                    const locInfo = data.state ? ` | ${data.location_type === 'remote' ? '🏠' : '🏢'} ${data.state}` : '';
-                    addMessage('bot', `✅ <strong>${data.employee_name}</strong> loaded | ${data.employment_classification}${empStatusBadge} | ${data.pto_tier}${locInfo}`);
+                    // Build status message with location
+                    const locInfo = data.state ? ` | ${data.location_type === 'remote' ? '\u{1F3E0}' : '\u{1F3E2}'} ${data.state}` : '';
+                    addMessage('bot', `\u2705 <strong>${data.employee_name}</strong> loaded | ${data.employment_classification} | ${data.pto_tier}${locInfo}`);
                 } else {
                     clearEmployeeInfo();
-                    addMessage('bot', `⚠️ Employee not found: ${email}`);
+                    addMessage('bot', `\u26A0 Employee not found: ${email}`);
                 }
             } catch (error) {
-                addMessage('bot', `❌ Lookup error: ${error.message}`);
+                addMessage('bot', `\u274C Lookup error: ${error.message}`);
             }
         }
 
@@ -717,8 +751,7 @@
             addMessage('user', question);
             input.value = '';
 
-            // Scroll to show the user's question at top of visible area
-            // Small delay to let DOM update
+            // Scroll to show the user's question
             setTimeout(() => {
                 const userMessages = messages.querySelectorAll('.message.user');
                 const lastUserMsg = userMessages[userMessages.length - 1];
@@ -753,7 +786,7 @@
                 
                 let meta = '';
                 if (data.employee_name) {
-                    meta += `<span class="employee-badge">👤 ${data.employee_name}</span>`;
+                    meta += `<span class="employee-badge">\u{1F464} ${data.employee_name}</span>`;
                 }
                 
                 const confClass = data.confidence >= 0.85 ? 'confidence-high' : 
@@ -761,14 +794,14 @@
                 meta += `<span class="confidence-badge ${confClass}">${Math.round(data.confidence * 100)}%</span>`;
                 
                 if (data.cached) {
-                    meta += `<span class="confidence-badge" style="background: rgba(0,212,255,0.2); color: #00d4ff;">⚡</span>`;
+                    meta += `<span class="confidence-badge" style="background: rgba(0,212,255,0.2); color: #00d4ff;">\u26A1</span>`;
                 }
 
                 addMessage('bot', message, meta);
 
             } catch (error) {
                 removeLoading(loadingId);
-                addMessage('bot', `❌ Error: ${error.message}`);
+                addMessage('bot', `\u274C Error: ${error.message}`);
             }
 
             sendBtn.disabled = false;
@@ -784,7 +817,6 @@
             `;
             messages.appendChild(div);
             
-            // Auto-scroll to bottom for bot messages
             if (type === 'bot') {
                 messages.scrollTop = messages.scrollHeight;
             }
@@ -792,11 +824,27 @@
 
         function addLoading() {
             const messages = document.getElementById('messages');
+            const apiUrl = document.getElementById('apiUrl').value;
             const id = 'loading_' + Date.now();
             const div = document.createElement('div');
             div.id = id;
             div.className = 'message bot';
-            div.innerHTML = `<div class="loading"><span></span><span></span><span></span></div>`;
+            
+            if (!hasShownMoAnimation) {
+                // First question - show Mo centered
+                const moGifUrl = `${apiUrl}/static/mo-fetch.gif`;
+                div.innerHTML = `
+                    <div class="mo-loading">
+                        <img src="${moGifUrl}" alt="Mo is fetching your answer..." onerror="this.parentElement.innerHTML='<div class=\\'loading\\'><span></span><span></span><span></span></div>'">
+                        <p>Mo is fetching your answer...</p>
+                    </div>
+                `;
+                hasShownMoAnimation = true;
+            } else {
+                // Subsequent questions - normal loading dots
+                div.innerHTML = `<div class="loading"><span></span><span></span><span></span></div>`;
+            }
+            
             messages.appendChild(div);
             messages.scrollTop = messages.scrollHeight;
             return id;
@@ -817,6 +865,7 @@
                 </div>
             `;
             generateSessionId();
+            hasShownMoAnimation = false;
         }
 
         function formatMarkdown(text) {
