@@ -832,7 +832,8 @@
             
             if (!hasShownMoAnimation) {
                 // First question - show Mo centered
-                const moGifUrl = `${apiUrl}/static/mo-fetch.gif`;
+                // Add timestamp to force GIF to restart from frame 1
+                const moGifUrl = `${apiUrl}/static/mo-fetch.gif?t=${Date.now()}`;
                 div.innerHTML = `
                     <div class="mo-loading">
                         <img src="${moGifUrl}" alt="Mo is fetching your answer..." onerror="this.parentElement.innerHTML='<div class=\\'loading\\'><span></span><span></span><span></span></div>'">
